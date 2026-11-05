@@ -172,19 +172,21 @@ def register_submit():
     #Create a link to verify the email
     verification_link = request.url_root.rstrip("/") + "/verify-email?token=" + token
 
+    
     #Send verification email
     try:
         resend.Emails.send({
             "from": EMAIL_FROM,
             "to": [email],
             "subject": "Verify your CarMa account",
-            "text": (
-                f"Welcome to CarMa!\n\n"
-                f"Click the link below to verify your email:\n\n"
-                f"{verification_link}\n\n"
-                f"This link expires in 24 hours."
+            "html": (
+                "<p>Welcome to CarMa!</p>"
+                "<p>Click the button below to verify your email:</p>"
+                f'<p><a href="{verification_link}">Verify Email Address</a></p>'
+                "<p>This link expires in 24 hours.</p>"
             )
         })
+
     except Exception:
         app.logger.exception("Verification email failed")
         return render_template("login.html", error="Your account was created, but the verification email could not be sent. Please use Resend Verification Email below."), 503
@@ -296,11 +298,12 @@ def resend_verification():
             "from": EMAIL_FROM,
             "to": [email],
             "subject": "Verify your CarMa account",
-            "text": (
-                f"Click the link below to verify your email:\n\n"
-                f"{verification_link}\n\n"
-                f"This link expires in 24 hours."
+            "html": (
+                "<p>Click the link below to verify your CarMa account:</p>"
+                f'<p><a href="{verification_link}">Verify Email Address</a></p>'
+                "<p>This link expires in 24 hours.</p>"
             )
+
         })
         
     #Handle errors if the email fails to send
