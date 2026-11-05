@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/Navbar-Right-Links-Dark-icons.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="service-reminder-page" data-vehicle-id="{{ vehicle.vehicle_id }}">
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark">
+        <div class="container">
+            <div class="container main-nav"><a href="dashboard.html"><img class="nav-logo" src="/assets/img/UpdatedLogo.webp" width="" height="au"></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button></div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item"></li>
+                    <li class="nav-item"><a class="nav-link" href="account-settings.html">Settings</a></li>
+                    <li class="nav-item"><a class="btn btn-primary logout-btn" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section class="service-reminder-section">
+        <div class="container service-reminder-container">
+            <div class="service-reminder-heading">
+                <!-- Return to the selected vehicle -->
+                 <a href="/vehicle/{{ vehicle.vehicle_id }}" class="btn btn-outline-primary mb-3">
+                    &#8592; Back to Vehicle
+                </a>
+                <h1>Service History &amp; Reminders</h1>
+                <p>View previous maintenance and track upcoming services using a Basic Service Guide<br><br></p>
+                <!--Grab the Year, Make and Model of the Vehicle table from Supabase-->
+                <p>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+            </div>
+            <div class="odometer-panel">
+                <h1>Current Odometer</h1>
+                <div class="odometer-form">
+                    <!-- Gets the Odometer from Supabase DB and displays it in the HTML-->
+                    {% if vehicle.odometer is not none %}
+                        <h1>{{ "{:,}".format(vehicle.odometer) }} km</h1>
+                    {% else %}
+                        <h1>Not recorded</h1>
+                    {% endif %}
+                </div>
+                <p>To change your odometer, go to your Vehicle Management Page</p>
+            </div>
+            <div class="recommended-services-panel">
+                <h2>Basic Service Reminders</h2>
+               <div>
+    <span class="badge rounded-pill service-status-badge {% if service_status == 'Overdue' %} status-overdue {% elif service_status == 'Due Now' %} status-due {% elif service_status == 'Due Soon' %} status-soon {% elif service_status == 'On Track' %} status-good {% else %} status-not-set {% endif %}">
+        {{ service_status }}
+    </span>
+</div>
+                <div class="row">
+                    <!--Get Service Values from SB DB-->
+                    <div class="col">
+                        <p>Last Service</p>
+
+                        {% if vehicle.last_service_km is not none %}
+                             <h4>{{ "{:,}".format(vehicle.last_service_km) }} km</h4>
+                        {% else %}
+                            <h4>Not Set</h4>     
+                        {% endif %}
+                    </div>
+
+                    <div class="col">
+                        <p>Next Service</p>
+
+                        {% if next_service_km is not none %}
+                        <h4>{{ "{:,}".format(next_service_km) }} km</h4>
+                        {% else %}
+                            <h4>Not Set</h4>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <!-- Display a message based on the service status -->
+                <p>
+                    {% if service_status == "Overdue" %}
+                        Your vehicle is overdue for a basic service.
+
+                    {% elif service_status == "Due Now" %}
+                        Your vehicle is due for a basic service now.
+                    
+                    {% elif service_status == "Due Soon" %}
+                        Your vehicle is approaching its next basic service.
+                    
+                    {% elif service_status == "On Track" %}
+                        Your vehicle is on track with its general service schedule.
+
+                    {% else %}
+                        Enter your service details to start tracking upcoming services.
+
+                    {% endif %}
+                </p>
+
+                <!--Progress towards next service-->
+                <div class="progress service-progress">
+                    <div class="progress-bar"
+                    role="progressbar"
+                    aria-valuenow="{{ progress_percent }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-label="Service Interval Progress"
+                    data-progress="{{ progress_percent }}">
+                    <span class="visually-hidden">{{ progress_percent }}%</span>
+                </div> 
+            </div>
+                <!--Show KMs remaining or Overdue if Service is Overdue-->
+                <p>{% if km_remaining is none %} 
+                    Set your service details to enable reminders. 
+                    {% elif km_remaining < 0 %}
+                        {{ "{:,}".format(-km_remaining) }} km overdue
+                        {% elif km_remaining == 0 %}
+                         Service due now
+                         {% else %}
+                         {{ "{:,}".format(km_remaining) }} km remaining
+                         {% endif %}
+                         {% if vehicle.service_interval_km is not none %}
+                          - {{ "{:,}".format(vehicle.service_interval_km) }} km interval
+                          {% endif %}
+                        </p>
+
+                <button class="btn btn-primary update-service-btn" type="button" data-bs-toggle="modal" data-bs-target="#updateServiceModal">Update Service Details</button>
+            </div>
+            <div class="maintenance-checks-panel">
+                <h2>2. Basic Maintenance Checks</h2>
+                <p>Do these checks between services to make sure your vehicle is in good health</p>
+                <div class="form-check">
+                    <input class="form-check-input maintenance-checkbox" type="checkbox" id="formCheck-1" data-field="check_oil" {% if vehicle.check_oil %}checked{% endif %}>
+                    <label class="form-check-label" for="formCheck-1">Check Oil Level</label></div>
+                <div class="form-check">
+                    <input class="form-check-input maintenance-checkbox" type="checkbox" id="formCheck-3" data-field="check_coolant" {% if vehicle.check_coolant %}checked{% endif %} >
+                    <label class="form-check-label" for="formCheck-3">Check Coolant Level</label></div>
+                <div class="form-check">
+                    <input class="form-check-input maintenance-checkbox" type="checkbox" id="formCheck-4" data-field="check_tyres" {% if vehicle.check_tyres %}checked{% endif %}>
+                    <label class="form-check-label" for="formCheck-4">Check Tyre Pressure and Tread</label></div>
+                <div class="form-check">
+                    <input class="form-check-input maintenance-checkbox" type="checkbox" id="formCheck-2" data-field="check_lights" {% if vehicle.check_lights %}checked{% endif %}>
+                    <label class="form-check-label" for="formCheck-2">Check Lights and Wipers</label></div>
+            </div>
+            <div class="recommended-services-panel">
+                <h2>3. Service History</h2>
+                <p>View previous services recorded for your vehicle</p>
+                <div class="table-responsive service-history-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Service Description</th>
+                                <th>Odometer</th>
+                                <th>Tracked for Service Reminder</th>
+                                <th>Invoice</th>
+                            </tr>
+                        </thead>
+                       <tbody>
+                        <!-- Loop through the selected vehicle Service invoices -->
+                         {% for invoice in service_invoices %}
+                         <tr>
+                            <!--Display the invoice date-->
+                            <td>{{ invoice.date }}</td>
+
+                            <!--Display the saved service description-->
+                            <td>{{ invoice.service_description or "Not recorded" }}</td>
+
+                            <!--Display the odometer reading when the service was completed-->
+                            <td>
+                                {% if invoice.invoice_odometer is not none %}
+                                {{ "{:,}".format(invoice.invoice_odometer) }} km
+                                {% else %}
+                                    Not recorded
+                                {% endif %}
+                            </td>
+                            <!--Show if this invoice counts towards the general service reminder-->
+                            <td>
+                                {% if invoice.counts_as_service %}
+                                     <span class="text-success" title="Tracked for Service Reminder">✓</span>
+                                {% else %}
+                                     <span class="text-danger" title="Not tracked for Service Reminder">✕</span>
+                                {% endif %}
+                            </td>
+                            <!--Link to view the original service invoice-->
+                            <td>
+                                <a href="/invoice/{{ invoice.invoice_id }}">View Invoice</a>
+                            </td>
+                        </tr>
+
+                        <!-- Display a message when there are no Service invoices -->
+                         {% else %}
+                         <tr>
+                            <td colspan="5">No service invoices recorded for this vehicle yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Modal for updating ethe selected vehicle service details -->
+<div class="modal fade" id="updateServiceModal" tabindex="-1" aria-labelledby="updateServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateServiceModalLabel">
+                    Update Service Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form sends the service details to Flask (APP.py) -->
+                 <form id="serviceDetailsForm" action ="/vehicle/{{ vehicle.vehicle_id }}/service-details" method="POST">
+                    <div id="serviceError" class="alert alert-danger" role="alert" hidden></div>
+                    <!-- Display service reading errors -->
+                     {% if request.args.get("error") == "service-invalid" %}
+                     <p class="text-danger">Enter valid service readings.</p>
+                     
+                     {% elif request.args.get("error") == "interval-zero" %}
+                     <p class="text-danger">Service interval must be greater than 0 km.</p>
+
+                     {% elif request.args.get("error") == "service-higher" %}
+                     <p class="text-danger">Last service cannot be higher than the current odometer reading.</p>
+                     
+                     {% elif request.args.get("error") == "service-maximum" %}
+                     <p class="text-danger">Last service cannot exceed 2,500,000 km.</p>
+                     
+                     {% elif request.args.get("error") == "interval-maximum" %}
+                     <p class="text-danger">Service interval cannot exceed 100,000 km.</p>
+                     
+                     {% elif request.args.get("error") == "no-service-invoice" %}
+                     <p class="text-danger">No Service invoice with a valid odometer reading was found. Upload a Service invoice with an odometer reading to enable automatic tracking.</p>
+                     {% endif %}
+
+                    <!-- Last Service Odometer REading -->
+                     <div class="mb-3">
+                        <label for="lastServiceKm" class="form-label">
+                            Last Service Odometer (km)
+                        </label>
+                        
+                        <input type="number" id="lastServiceKm" name="last_service_km" class="form-control" min="0" max="2500000" value="{{ vehicle.last_service_km if vehicle.last_service_km is not none else ''}}" placeholder="e.g 125000" required>
+                    </div>
+                    <!--Service Interval-->
+                    <div class="mb-3"> 
+                         <label for="serviceIntervalKm" class="form-label"> 
+                            Service Interval (km)
+                         </label>
+
+                         <input type="number" id ="serviceIntervalKm" name="service_interval_km" class="form-control" min="1" max="100000" value="{{ vehicle.service_interval_km if vehicle.service_interval_km is not none else '' }}" placeholder="e.g 10000" required>
+                    </div>
+
+                    <!--Form Buttons-->
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type ="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-primary">
+                            Save Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4"><a class="link-body-emphasis" href="#">About</a></li>
+                <li class="list-inline-item me-4"><a class="link-body-emphasis" href="#">Privacy</a></li>
+                <li class="list-inline-item"><a class="link-body-emphasis" href="#">Contacst</a></li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/service-reminder.js"></script>
+</body>
+</html>

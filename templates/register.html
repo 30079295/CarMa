@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="register-page" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/index.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login.html">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register.html">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section class="register-section">
+        <div class="container position-relative h-100 features-container">
+            <div class="container">
+                <div class="row d-flex d-xl-flex justify-content-center justify-content-xl-center">
+                    <div class="col-sm-12 col-lg-10 col-xl-9 col-xxl-7" style="border-radius: 1px;">
+                        <div class="p-5 register-card">
+                            <div class="text-center">
+                                <h4 class="register-title">Create Your Account</h4>
+                                <p class="register-subtitle">Sign up to start organising your vehicle history.</p>
+                            </div>
+                            <!-- Display registration errors -->
+                             {% if error %}
+                             <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                            {% endif %}
+                            <form class="user" method="POST" action="/register">
+                                <div class="mb-3">
+                                    <label class="form-label register-label" for="full_name">Full Name</label>
+                                    <input class="form-control register-input" type="text" id="full_name" name="full_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label register-label" for="email">Email Address</label>
+                                    <input class="form-control register-input" type="email" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label register-label" for="password">Password</label>
+                                    <input class="form-control register-input" type="password" id="password" name="password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label register-label" for="verifyPassword">Confirm Password</label>
+                                    <input class="form-control register-input" type="password" id="verifyPassword" name="confirm_password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <p id="emailErrorMsg" class="text-danger" style="display:none;"></p>
+                                    <p id="passwordErrorMsg" class="text-danger" style="display:none;"></p>
+                                </div>
+                                <button class="btn btn-primary d-block w-100 btn-user register-button" id="submitBtn" type="submit">Register Account</button>
+                                <hr>
+                            </form>
+                            <div class="text-center">
+                                <a class="small" href="/forgot-password.html">Forgot Password?</a>
+                            </div>
+                            <div class="text-center">
+                                <a class="small" href="/login.html">Already have an account? Login!</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+    <script>
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const verifyPassword = document.getElementById("verifyPassword");
+
+        const submitBtn = document.getElementById("submitBtn");
+        const emailErrorMsg = document.getElementById("emailErrorMsg");
+        const passwordErrorMsg = document.getElementById("passwordErrorMsg");
+
+
+        function checkForm() {
+
+            let valid = true;
+
+            if (!email.checkValidity()) {
+                emailErrorMsg.textContent = "Invalid email";
+                emailErrorMsg.style.display = "block";
+                valid = false;
+            } else {
+                emailErrorMsg.textContent = "";
+                emailErrorMsg.style.display = "none";
+            }
+
+            if (password.value.length < 8) {
+                passwordErrorMsg.textContent = "Password must be at least 8 characters long";
+                passwordErrorMsg.style.display = "block";
+                valid = false;
+            } else if (password.value !== verifyPassword.value) {
+                passwordErrorMsg.textContent = "Passwords do not match";
+                passwordErrorMsg.style.display = "block";
+                valid = false;
+            } else {
+                passwordErrorMsg.textContent = "";
+                passwordErrorMsg.style.display = "none";
+            }
+
+            submitBtn.disabled = !valid;
+        }
+
+
+        email.addEventListener("input", checkForm);
+        password.addEventListener("input", checkForm);
+        verifyPassword.addEventListener("input", checkForm);
+        checkForm();
+    </script>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

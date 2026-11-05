@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="account-settings-page">
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark" style="background: rgb(6, 17, 14);">
+        <div class="container">
+            <div class="container main-nav"><a href="dashboard.html"><img class="nav-logo" src="/assets/img/UpdatedLogo.webp" width="" height="au"></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button></div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item"></li>
+                    <li class="nav-item"><a class="nav-link" href="account-settings.html">Settings</a></li>
+                    <li class="nav-item"><a class="btn btn-primary logout-btn" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section class="account-settings-section">
+        <div class="container account-settings-container">
+            <div class="account-settings-heading">
+                <h1>Account Settings</h1>
+                <p>Manage your personal information, security and preferences</p>
+            </div>
+            <div class="settings-panel personal-info-panel">
+                <div class="settings-panel-header"><svg class="bi bi-person-fill settings-panel-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"></path>
+                    </svg>
+                    <div class="settings-panel-title">
+                        <h2>Personal Information</h2>
+                        <p>Keep your account details up to date.</p>
+                    </div>
+                </div>
+                <form method="POST" action="/account/update-name"> 
+                <div class="row g-3 settings-form-row">
+                    <div class="col col-md-6"><label class="col-form-label">Full Name&nbsp;<input type="text" class="settings-input" name="full_name" value="{{ user.full_name }}" placeholder="Enter your full name"></label></div>
+                    <div class="col col-md-6"><label class="col-form-label">Email Address&nbsp;<input type="email" class="settings-input" name="email" value="{{ user.email }}" placeholder="Enter your email address" readonly></label></div>
+                </div><button class="btn btn-primary settings-primary-btn" type="submit">Save Changes</button>
+                </form>
+                <!-- Display name update errors -->
+                 {% if request.args.get("error") == "name-empty" %}
+                 <p class="text-danger mt-3">Please enter your full name.</p>
+                 {% elif request.args.get("error") == "name-failed" %}
+                 <p class="text-danger mt-3">Account could not be updated. Please try again.</p>
+                 
+                 {% endif %}
+            <form method="POST" action="/account/change-email">
+                <div class="row g-3 settings-form-row">
+                    <div class="col col-md-6">
+                        <label class="col-form-label">
+                            New Email Address
+                            <input type="email" class="settings-input" name="new_email" placeholder="Enter your new email address" autocomplete="email" required>
+                        </label>
+                    </div>
+                    <div class="col col-md-6">
+                        <label class="col-form-label">
+                            Current Password
+                            <input type="password" class="settings-input" name="email_change_password" placeholder="Enter your current password" autocomplete="current-password" required>
+                        </label>
+                    </div>
+                 </div>
+                 
+                 <button class="btn btn-primary settings-primary-btn" type="submit">
+                    Change Email
+                </button>
+            </form>
+            
+            {% if request.args.get("success") == "email-sent" %}
+            <p class="text-success mt-3">
+                Verification email sent. Check your new email address.
+            </p>
+            
+            {% elif request.args.get("error") == "email-invalid" %}
+            <p class="text-danger mt-3">Enter a valid email address.</p>
+
+            {% elif request.args.get("error") == "email-password" %}
+            <p class="text-danger mt-3">
+                Current password is incorrect.
+            </p>
+           {% elif request.args.get("error") == "email-wait" %}
+           <p class="text-danger mt-3">
+            Please wait 60 seconds before requesting another email change.
+        </p>
+        {% elif request.args.get("error") == "email-exists" %}
+        <p class="text-danger mt-3">This email address is already registered.</p>
+        
+        {% elif request.args.get("error") == "email-same" %}
+        <p class="text-danger mt-3">This is already your current email address.</p>
+        
+        {% elif request.args.get("error") == "email-send" %}
+        <p class="text-danger mt-3">Unable to send verification email. Please try again.</p>
+        
+        {% endif %}
+    </div>
+            <div class="settings-panel security-panel">
+                <div class="settings-panel-header"><svg class="bi bi-lock-fill settings-panel-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4m0 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3"></path>
+                    </svg>
+                    <div class="settings-panel-title">
+                        <h2>Security</h2>
+                        <p>Update your password to keep your account secure</p>
+                    </div>
+                </div>
+                <form method="POST" action="/account/update-password">
+                <div class="row g-3 settings-form-row">
+                    <div class="col col-lg-4"><label class="col-form-label">Current Password&nbsp;<input type="password" class="settings-input" name="current_password" placeholder="Enter your current password" autocomplete="current-password" required></label></div>
+                    <div class="col col-lg-4"><label class="col-form-label">New Password&nbsp;<input type="password" class="settings-input" name="new_password" placeholder="Enter your new password" autocomplete="new-password" required></label></div>
+                    <div class="col col-lg-4"><label class="col-form-label">Confirm New Password&nbsp;<input type="password" class="settings-input" name="confirm_password" placeholder="Confirm your new password" autocomplete="new-password" required></label></div>
+                </div><button class="btn btn-primary settings-primary-btn" type="submit">Update Password</button></form>
+                {% if request.args.get("error") == "password-empty" %}
+                <p class="text-danger mt-3">Please fill in all password fields.</p>
+                
+                {% elif request.args.get("error") == "incorrect-password" %}
+                <p class="text-danger mt-3">Current password is incorrect.</p>
+                
+                {% elif request.args.get("error") == "password-mismatch" %}
+                    <p class="text-danger mt-3">New passwords do not match.</p>
+                    
+                {% elif request.args.get("error") == "password-short" %}
+                    <p class="text-danger mt-3">New password must be at least 8 characters.</p>
+                
+                {% elif request.args.get("error") == "password-failed" %}
+                <p class="text-danger mt-3">Password could not be updated. Please try again.</p>
+
+                {% endif %}
+            </div>
+            <div class="settings-panel subscription-panel">
+                <div class="settings-panel-header"><svg class="bi bi-credit-card-fill settings-panel-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1H0zm0 3v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7zm3 2h1a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1"></path>
+                    </svg>
+                    <div class="settings-panel-title">
+                        <h2>Subscription</h2>
+                        <p>Manage your subscription and billing information</p>
+                    </div>
+                </div>
+                <div class="subscription-placeholder"><svg class="bi bi-info-circle" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"></path>
+                    </svg>
+                    <p>Subscription details will appear here in future planned updates.</p>
+                </div>
+                <p class="subscription-status">Currently in free mode</p>
+            </div>
+            <div class="settings-panel account-actions-panel">
+                <div class="settings-panel-header"><svg class="bi bi-trash-fill settings-panel-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"></path>
+                    </svg>
+                    <div class="settings-panel-title">
+                        <h2>Account Actions</h2>
+                        <p>Permanently delete your account and all associated data</p>
+                    </div>
+                </div>
+                <form method="POST" action="/account/delete">
+                    <div class="row g-3 settings-form-row">
+                        <div class="col col-md-6">
+                            <label class="col-form-label">
+                                Current Password
+                                <input type="password" class="settings-input" name="delete_password" placeholder="Enter your current password" autocomplete="current-password" required>
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger delete-account-btn" type="submit" onclick="return confirm('Are you sure? This will permanently delete your account, vehicles, and invoices.');">
+                        Delete Account
+                    </button>
+                </form>
+                {% if request.args.get("error") == "delete-password" %}
+                <p class="text-danger mt-3">Current password is incorrect.</p>
+                {% elif request.args.get("error") == "delete-failed" %}
+                <p class="text-danger mt-3">Unable to delete your account. Please try again.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4"><a class="link-body-emphasis" href="#">About</a></li>
+                <li class="list-inline-item me-4"><a class="link-body-emphasis" href="#">Privacy</a></li>
+                <li class="list-inline-item"><a class="link-body-emphasis" href="#">Contact</a></li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

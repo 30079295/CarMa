@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="invoice-viewer-page" data-invoice-id="{{ invoice.invoice_id }}" data-total-pages="{{ (invoice.invoice_image_urls or []) | length or (1 if invoice.invoice_image_url else 0) }}" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account-settings.html">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary logout-btn" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="invoice-viewer-section">
+        <div class="container invoice-viewer-container">
+            <div class="invoice-viewer-top">
+                <div class="invoice-viewer-heading">
+                    <a href="/vehicle/{{ vehicle.vehicle_id }}">← Back to Invoices</a>
+                    <h1>View Invoice</h1>
+                    <p>View the saved invoice details and service records.</p>
+
+                    <div class="invoice-viewer-actions">
+                        <a class="btn btn-primary edit-invoice-btn" href="/invoice/{{ invoice.invoice_id }}/edit">
+                            Edit Invoice
+                        </a>
+                        <form method="POST" action="/invoice/{{ invoice.invoice_id }}/delete">
+                            <button class="btn btn-primary delete-invoice-btn" type="submit">
+                                Delete Invoice
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col col-lg-8">
+                    <div class="digital-invoice">
+                        <img class="img-fluid" src="/assets/img/Invoice_Logo.webp" alt="CarMa Logo">
+                        <div>
+                            <h2>Invoice</h2>
+                            <p>#{{ invoice.invoice_number or invoice.invoice_id }}</p>
+                        </div>
+                        <div class="invoice-divider"></div>
+
+                        <div class="row">
+                            <div class="col col-lg-6">
+                                <h3 id="H3">Supplier / Company</h3>
+                                <p>
+                                    <strong>Company:</strong>
+                                    {{ invoice.company_name or "Not provided" }}
+                                </p>
+                                <p>
+                                    <strong>Address:</strong>
+                                    {{ invoice.company_address or "Not provided" }}
+                                </p>
+                                <p>
+                                    <strong>Phone:</strong>
+                                    {{ invoice.company_phone or "Not provided" }}
+                                </p>
+                                <p>
+                                    <strong>Email:</strong>
+                                    {{ invoice.company_email or "Not provided" }}
+                                </p>
+                                <p>
+                                    <strong>GST / Tax No:</strong>
+                                    {{ invoice.gst_number or "Not provided" }}
+                                </p>
+                            </div>
+
+                            <div class="col col-lg-6">
+                                <h3>Invoice Details</h3>
+                                <p>
+                                    Invoice Number:
+                                    {{ invoice.invoice_number or "Not provided" }}
+                                </p>
+                                <p>
+                                    Invoice Date:
+                                    {{ invoice.date }}
+                                </p>
+                                <p>
+                                    Category:
+                                    {{ invoice.category | join(" / ") }}
+                                </p>
+                                {% if invoice.service_description %}
+                                <p>
+                                    <strong>Service Description:</strong>
+                                    {{ invoice.service_description }}
+                                </p>
+                                {% endif %}
+                                <p>
+                                    <span style="color: #0d6efd;">Total Amount:</span>
+                                    ${{ "%.2f"|format(invoice.cost) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="invoice-divider"></div>
+                        <h1 style="color: #0d6efd;">Vehicle Details</h1>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <p>Make / Model: {{ vehicle.make }} {{ vehicle.model }}</p>
+                                <p>Year: {{ vehicle.year }}</p>
+                                
+                                {% if vehicle.submodel %}
+                                <p>Version / Trim: {{ vehicle.submodel }}</p>
+                                {% endif %}
+                                
+                                {% if vehicle.engine_cc %}
+                                <p>Engine: {{ vehicle.engine_cc }}cc ({{ "%.1f"|format(vehicle.engine_cc / 1000) }}L)</p>
+                                {% endif %}
+                                
+                                {% if vehicle.body_style %}
+                                <p>Body Style: {{ vehicle.body_style }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col">
+                                <p>Registration: {{ vehicle.registration_plate }}</p>
+                                
+                                <p>Invoice Odometer:
+                                    {% if invoice.invoice_odometer is not none %}
+                                        {{ "{:,}".format(invoice.invoice_odometer) }} km
+                                    {% else %}
+                                    Not recorded
+                                    {% endif %}
+                                </p>
+                                
+                                {% if vehicle.model_code %}
+                                <p>Model Code: {{ vehicle.model_code }}</p>
+                                {% endif %}
+                                
+                                <p>Fuel Type: {{ vehicle.fuel_type or "Not specified" }}</p>
+                                <p>Transmission: {{ vehicle.transmission or "Not specified" }}</p>
+                            </div>
+                        </div>
+
+
+                        <div class="invoice-divider"></div>
+                        <h3 style="color: #0d6efd;">Invoice Content</h3>
+                        <div id="invoice_page_content">
+                            {% set table = invoice.invoice_items or {} %}
+                            {% set rows = table.get("rows", []) %}
+                            {% set columns = table.get("columns", []) %}
+
+                            {% if rows %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead>
+                                        <tr>
+                                            {% if "part_number" in columns %}
+                                            <th>Part Number</th>
+                                            {% endif %}
+                                            {% if "description" in columns %}
+                                            <th>Description</th>
+                                            {% endif %}
+                                            {% if "quantity" in columns %}
+                                            <th>Qty</th>
+                                            {% endif %}
+                                            {% if "unit_price" in columns %}
+                                            <th>Unit Price</th>
+                                            {% endif %}
+                                            {% if "gst" in columns %}
+                                            <th>GST</th>
+                                            {% endif %}
+                                            {% if "total" in columns %}
+                                            <th>Total</th>
+                                            {% endif %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in rows %}
+                                        <tr>
+                                            {% if "part_number" in columns %}
+                                            <td>{{ row.get("part_number", "") }}</td>
+                                            {% endif %}
+                                            {% if "description" in columns %}
+                                            <td>{{ row.get("description", "") }}</td>
+                                            {% endif %}
+                                            {% if "quantity" in columns %}
+                                            <td>{{ row.get("quantity", "") }}</td>
+                                            {% endif %}
+                                            {% if "unit_price" in columns %}
+                                            <td>{{ row.get("unit_price", "") }}</td>
+                                            {% endif %}
+                                            {% if "gst" in columns %}
+                                            <td>{{ row.get("gst", "") }}</td>
+                                            {% endif %}
+                                            {% if "total" in columns %}
+                                            <td>{{ row.get("total", "") }}</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% elif invoice.ocr_text %}
+                            <div class="invoice-ocr-content" style="white-space: pre-wrap;">
+                                {{ invoice.ocr_text }}
+                            </div>
+                            {% else %}
+                            <p>No invoice content was detected.</p>
+                            {% endif %}
+                        </div>
+
+                        <div id="invoice_notes_section" hidden>
+                            <div class="invoice-divider"></div>
+                            <h3 style="color: #0d6efd;">Work Completed / Notes</h3>
+                            <div class="invoice-notes" id="invoice_page_notes"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col col-lg-4">
+                    <div class="original-invoice-panel">
+                        {% if invoice.invoice_image_url %}
+                        <h1 style="color: #0d6efd;">Original Invoice</h1>
+                        <p>This document was uploaded for OCR extraction.</p>
+                        {% else %}
+                        <h1 style="color: #0d6efd;">Manually Entered Invoice</h1>
+                        <p>This invoice was created manually without an image.</p>
+                        {% endif %}
+
+                        {% if invoice.invoice_image_url %}
+                        <div class="original-invoice-preview">
+                            <img
+                                class="img-fluid"
+                                id="invoice_preview_image"
+                                src="/invoice/{{ invoice.invoice_id }}/preview"
+                                data-bs-toggle="modal"
+                                data-bs-target="#invoiceImageModal"
+                                alt="Original Invoice"
+                                style="cursor: zoom-in;"
+                            >
+                        </div>
+                        {% endif %}
+
+                        {% set invoice_pages = invoice.invoice_image_urls or [] %}
+                        {% if invoice_pages | length > 1 %}
+                        <div class="d-flex align-items-center justify-content-center gap-3 mt-3">
+                            <button type="button" id="previous_page" class="btn btn-primary btn-sm" disabled>
+                                &larr;
+                            </button>
+                            <span id="page_counter">Page 1 of {{ invoice_pages | length }}</span>
+                            <button type="button" id="next_page" class="btn btn-primary btn-sm">
+                                &rarr;
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="document-info-panel">
+                        <h2>Document Information</h2>
+                        <p>
+                            Created:
+                            {{ invoice.created_at | nz_datetime }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+
+    <!-- Popup for enlarged invoice image -->
+    <div class="modal fade" id="invoiceImageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <!-- Button to close the enlarged invoice preview -->
+                <button type="button" class="btn btn-danger ms-auto m-2" data-bs-dismiss="modal" aria-label="Close" style="color: white; font-size: 22px; line-height: 1;">&times;</button>
+                <img class="img-fluid" id="invoice_zoom_image" alt="Enlarged Original Invoice">
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script id="saved_invoice_data" type="application/json">{{ (invoice.invoice_items or {}) | tojson }}</script>
+    <script src="/assets/js/invoice-viewer.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+
+    <!-- Flask communicates with the client using the /assets path for CSS and images. -->
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="dashboard-page">
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark" style="background: rgb(6, 17, 14);">
+        <div class="container">
+            <div class="container main-nav">
+
+                <!-- Clicking the logo opens the dashboard() route in app.py. -->
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+
+                <!-- Opens mobile menu using Hamburger icon. -->
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login"> 
+                    <li class="nav-item"></li>
+
+                    <li class="nav-item">
+                        <!-- Opens the account_settings() route in app.py. -->
+                        <a class="nav-link" href="/account-settings.html">Settings</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <!-- Runs logout(), which clears the session and redirects to login page. -->
+                        <a class="btn btn-primary logout-btn" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dashboard-section">
+        <div class="container position-relative h-100 dashboard-container" id="dashboard-container">
+            
+<!-- Dashboard summary cards -->
+<div class="row g-3 dashboard-stats">
+
+    <div class="col-12 col-md-4">
+        <div class="card dashboard-stat-card">
+            <div class="card-body">
+                <h4 class="card-title">Total Vehicles</h4>
+                <p class="card-text">{{ total_vehicles }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card dashboard-stat-card">
+            <div class="card-body">
+                <h4 class="card-title">Total Invoices</h4>
+                <p class="card-text">{{ total_invoices }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card dashboard-stat-card">
+            <div class="card-body">
+                <h4 class="card-title">Services Due</h4>
+                <p class="card-text">{{ upcoming_services }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+         <div class="vehicles-section">
+    <div class="dashboard-section-header">
+
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <h1>My Vehicles</h1>
+                <a class="btn btn-primary" href="/add-vehicle.html">Add Vehicle</a>
+            </div>
+        </div>
+                    
+                    <!-- Display vehicle errors -->
+                     {% if request.args.get("error") == "vehicle-not-found" %}
+                     <p class="text-danger mt-3">Vehicle not found.</p>
+
+                     {% elif request.args.get("error") == "invoice-not-found" %}
+                     <p class="text-danger mt-3">Invoice not found or you don't have access to it.</p>
+                     {% endif %}
+                    
+                    <div class="row vehicle-cards-row" id="vehicleCards">
+                        {% if vehicles %}
+                            {% for vehicle in vehicles %}
+                                <div class="col-12 col-md-6 col-lg-3 vehicle-carousel-item">
+                                    <div class="dashboard-vehicle-card">
+                                        {% if vehicle.image_url %}
+                                            <!-- Loads the vehicle photo using its saved image URL. -->
+                                            <img class="img-fluid" src="{{ vehicle.image_url }}" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                                        {% else %}
+                                            <div class="vehicle-image-placeholder">
+                                                <span>No Vehicle Image</span>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <h3>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
+                                        {% if vehicle.submodel %}
+                                        <p>{{ vehicle.submodel }}</p>
+                                        {% endif %}
+                                        
+                                        <p>Odometer:
+                                            {% if vehicle.odometer is not none %}
+                                                 {{ "{:,}".format(vehicle.odometer) }} km
+                                            {% else %}
+                                                Not recorded
+                                            {% endif %}
+                                        </p>
+                                        
+                                        <p>Registration: {{ vehicle.registration_plate }}</p>
+
+                                    </div>
+
+                                    <a class="btn btn-primary" href="/vehicle/{{ vehicle.vehicle_id }}">Manage Vehicle</a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12">
+                                <p>You haven't added any vehicles yet.</p>
+
+                                <!-- Opens the same Add Vehicle route as the button above. -->
+                                <a class="btn btn-primary" href="/add-vehicle.html">Add Your First Vehicle</a>
+                            </div>
+                        
+                        {% endif %}
+                    </div>
+
+                    <!-- Vehicle carousel navigation -->
+                    <div class="vehicle-carousel-controls" id="vehicleControls">
+                        <button type="button" class="btn btn-outline-primary" id="previousVehicles">
+                            &#10094; Previous
+                        </button>
+
+                        <span id="vehiclePageNumber"></span>
+
+                        <button type="button" class="btn btn-outline-primary" id="nextVehicles">
+                            Next &#10095;
+                        </button>
+                    </div>
+
+                    <div class="recent-invoices-section">
+
+                        <h2 id="H2">Recent Invoices</h2>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th>Vehicle</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Cost</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% if recent_invoices %}
+                                        {% for invoice in recent_invoices %}
+                                            <tr>
+                                                <td>Invoice #{{ invoice.invoice_id }}</td>
+                                                <td>{{ vehicle_names.get(invoice.vehicle_id|string, "Unknown Vehicle") }}</td>
+                                                <td>{{ invoice.date }}</td>
+                                                <td>{{ invoice.category | join(' / ') }}</td>
+                                                <td>${{ "%.2f"|format(invoice.cost) }}</td>
+                                                <td>
+                                                    <a href="/invoice/{{ invoice.invoice_id }}">View Invoice</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6">No invoices have been added yet.</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+
+            <!-- These # links are placeholders and do not open Flask routes yet. -->
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/dashboard.js"></script>
+</body>
+</html>

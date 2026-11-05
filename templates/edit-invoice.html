@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Edit Invoice - CarMa</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="invoice-viewer-page" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark" style="background: rgb(6, 17, 14);">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item"><a class="nav-link" href="/account-settings.html">Settings</a></li>
+                    <li class="nav-item"><a class="btn btn-primary logout-btn" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- EDIT INVOICE -->
+    <section class="invoice-viewer-section">
+        <div class="container invoice-viewer-container">
+            <div class="invoice-viewer-top">
+                <div class="invoice-viewer-heading">
+                    <a href="/invoice/{{ invoice.invoice_id }}">← Back to Invoice</a>
+                    <h1>Edit Invoice</h1>
+                    <p>Update the invoice details below.</p>
+                    {% if error %}
+                    <p class="text-danger mt-3">{{ error }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="POST">
+                <div class="row">
+                    <div class="col col-lg-8">
+                        <div class="digital-invoice">
+                            <img class="img-fluid" src="/assets/img/Invoice_Logo.webp" alt="CarMa Logo">
+                            <div>
+                                <h2>Invoice</h2>
+                                <p>#{{ invoice.invoice_number or invoice.invoice_id }}</p>
+                            </div>
+                            <div class="invoice-divider"></div>
+
+                            <div class="row">
+                                <!-- COMPANY DETAILS -->
+                                <div class="col col-lg-6">
+                                    <h3 id="H3">Supplier / Company</h3>
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Name</label>
+                                        <input class="form-control" type="text" name="company_name" value="{{ invoice.company_name or '' }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <input class="form-control" type="text" name="company_address" value="{{ invoice.company_address or '' }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input class="form-control" type="text" name="phone_number" value="{{ invoice.company_phone or '' }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email Address</label>
+                                        <input class="form-control" type="email" name="email_address" value="{{ invoice.company_email or '' }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">GST / Tax Number</label>
+                                        <input class="form-control" type="text" name="gst_number" value="{{ invoice.gst_number or '' }}">
+                                    </div>
+                                </div>
+
+                                <!-- INVOICE DETAILS -->
+                                <div class="col col-lg-6">
+                                    <h3>Invoice Details</h3>
+                                    <div class="mb-3">
+                                        <label class="form-label">Invoice Number</label>
+                                        <input class="form-control" type="text" name="invoice_number" value="{{ invoice.invoice_number or '' }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Invoice Date</label>
+                                        <input class="form-control" type="date" name="date" value="{{ invoice.date }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Category</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="category" value="Service" id="edit-category-service" {% if invoice.category and "Service" in invoice.category %}checked{% endif %}>
+                                            <label class="form-check-label" for="edit-category-service">Service</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="category" value="Repair" id="edit-category-repair" {% if invoice.category and "Repair" in invoice.category %}checked{% endif %}>
+                                            <label class="form-check-label" for="edit-category-repair">Repair</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="category" value="Modification" id="edit-category-modification" {% if invoice.category and "Modification" in invoice.category %}checked{% endif %}>
+                                            <label class="form-check-label" for="edit-category-modification">Modification</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Total Amount</label>
+                                        <input class="form-control" type="number" name="cost" step="0.01" min="0" value="{{ invoice.cost }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="service_description">Service Description</label>
+                                        <input class="form-control" type="text" id="service_description" name="service_description" value="{{ invoice.service_description or '' }}">
+                                    </div>
+
+                                    <!-- SERVICE REMINDER -->
+                                    <div class="form-check mb-3" id="edit_service_reminder_section" {% if 'Service' not in (invoice.category or []) %}hidden{% endif %}>
+                                        <input class="form-check-input" type="checkbox" name="counts_as_service" id="counts_as_service" value="on" {% if invoice.counts_as_service %}checked{% endif %}>
+                                        <label class="form-check-label" for="counts_as_service">Counts towards general service reminder</label>
+                                        <p class="small text-muted mt-1">Only for oil changes or major/general services.</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label" for="invoice_odometer">Invoice Odometer (km)</label>
+                                        <input class="form-control" type="number" id="invoice_odometer" name="invoice_odometer" min="0" max="2500000" step="1" value="{{ invoice.invoice_odometer if invoice.invoice_odometer is not none else '' }}" placeholder="ex: 125000" data-current-km="{{ vehicle.odometer if vehicle.odometer is not none else '' }}">
+                                        <input type="hidden" id="confirm_large_odometer" name="confirm_large_odometer" value="off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="invoice-divider"></div>
+
+                            <!-- VEHICLE DETAILS -->
+                            <h1>Vehicle Details</h1>
+                            <div class="row">
+                                <div class="col">
+                                    <p>Make / Model: {{ vehicle.make }} {{ vehicle.model }}</p>
+                                    <p>Year: {{ vehicle.year }}</p>
+                                    {% if vehicle.submodel %}
+                                    <p>Version / Trim: {{ vehicle.submodel }}</p>
+                                    {% endif %}
+                                    {% if vehicle.engine_cc %}
+                                    <p>Engine: {{ vehicle.engine_cc }}cc ({{ "%.1f"|format(vehicle.engine_cc / 1000) }}L)</p>
+                                    {% endif %}
+                                    {% if vehicle.body_style %}
+                                    <p>Body Style: {{ vehicle.body_style }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col">
+                                    <p>Registration: {{ vehicle.registration_plate }}</p>
+                                    <p>Invoice Odometer:
+                                        {% if invoice.invoice_odometer is not none %}
+                                        {{ "{:,}".format(invoice.invoice_odometer) }} km
+                                        {% else %}
+                                        Not recorded
+                                        {% endif %}
+                                    </p>
+                                    {% if vehicle.model_code %}
+                                    <p>Model Code: {{ vehicle.model_code }}</p>
+                                    {% endif %}
+                                    <p>Fuel Type: {{ vehicle.fuel_type or "Not specified" }}</p>
+                                    <p>Transmission: {{ vehicle.transmission or "Not specified" }}</p>
+                                </div>
+                            </div>
+
+                            <div class="invoice-divider"></div>
+
+                            <!-- INVOICE CONTENT EDITOR -->
+                            <h3>Invoice Content</h3>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <button type="button" class="btn btn-primary" id="edit_previous_page">Previous Page</button>
+                                <span id="edit_page_counter">Page 1 of 1</span>
+                                <button type="button" class="btn btn-primary" id="edit_next_page">Next Page</button>
+                            </div>
+
+                            <!-- Edit tables and text from each invoice page -->
+                            <div id="invoice_blocks_editor" class="mb-3">
+                                <div id="invoice_blocks_list"></div>
+                                <button type="button" class="btn btn-primary btn-sm" id="add_edit_section">+ Add Section</button>
+                                <button type="button" class="btn btn-primary btn-sm" id="add_edit_table">+ Add Table</button>
+                            </div>
+
+                            <!-- Older invoices without saved sections -->
+                            <div id="invoice_text_fallback" hidden>
+                                <label class="form-label" for="ocr_text">OCR Text</label>
+                                <textarea class="form-control" id="ocr_text" name="ocr_text" rows="10">{{ invoice.ocr_text or '' }}</textarea>
+                            </div>
+                            <input type="hidden" id="invoice_items" name="invoice_items">
+                            <script id="saved_invoice_data" type="application/json">{{ (invoice.invoice_items or {}) | tojson }}</script>
+
+                            <div class="invoice-divider"></div>
+
+                            <!-- Notes for older invoices -->
+                            <div class="mb-3" id="old_invoice_notes" hidden>
+                                <label class="form-label" for="invoice_notes">Notes/Work Completed</label>
+                                <textarea class="form-control" id="invoice_notes" name="invoice_notes" rows="5">{{ invoice.invoice_notes or '' }}</textarea>
+                            </div>
+
+                            <div class="invoice-viewer-actions">
+                                <button class="btn btn-primary edit-invoice-btn" type="submit">Save Changes</button>
+                                <a class="btn btn-primary" href="/invoice/{{ invoice.invoice_id }}">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORIGINAL INVOICE -->
+                    <div class="col col-lg-4">
+                        <div class="original-invoice-panel">
+                            {% if invoice.invoice_image_url %}
+                            <h1>Original Invoice</h1>
+                            <p>This is the document uploaded for OCR extraction.</p>
+                            {% else %}
+                            <h1>Manually Entered Invoice</h1>
+                            <p>This invoice was created manually without an image.</p>
+                            {% endif %}
+                            {% if invoice.invoice_image_url %}
+                            <div class="original-invoice-preview">
+                                <img class="img-fluid" id="edit_invoice_preview" src="/invoice/{{ invoice.invoice_id }}/preview" alt="Original Invoice" decoding="async">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="document-info-panel">
+                            <h2>Document Information</h2>
+                            <p>Created: {{ invoice.created_at }}</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4"><a class="link-body-emphasis" href="#">About</a></li>
+                <li class="list-inline-item me-4"><a class="link-body-emphasis" href="#">Privacy</a></li>
+                <li class="list-inline-item"><a class="link-body-emphasis" href="#">Contact</a></li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/edit-invoice.js"></script>
+</body>
+</html>

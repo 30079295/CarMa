@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Edit Vehicle - CarMa</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="add-vehicle-page" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark" style="background: rgb(6, 17, 14);">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account-settings.html">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary logout-btn" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- EDIT VEHICLE -->
+    <section class="add-vehicle-section">
+        <div class="container position-relative h-100 add-vehicle-container">
+
+            <div class="add-vehicle-heading">
+                <h1>Edit Vehicle</h1>
+                <p>Update your vehicle details below.</p>
+
+                {% if error %}
+                <p class="text-danger mt-3">{{ error }}</p>
+                {% endif %}
+            </div>
+
+            <!-- VEHICLE FORM -->
+            <form method="POST"
+                  action="/vehicle/{{ vehicle.vehicle_id }}/edit"
+                  enctype="multipart/form-data">
+
+                <div class="row g-4">
+
+                    <!-- VEHICLE IMAGE -->
+                    <div class="col col-lg-4">
+                        <div class="vehicle-panel vehicle-image-panel">
+
+                            <h1>Vehicle Image</h1>
+
+                            <div id="vehicle-upload" class="vehicle-upload">
+
+                                <div id="vehicle-upload-placeholder"
+                                     {% if vehicle.image_url %}style="display: none;"{% endif %}>
+
+                                    <svg class="bi bi-car-front-fill" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" style="font-size: 142px;">
+                                        <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0-2z"></path>
+                                    </svg>
+
+                                    <h1>Choose a Vehicle Image</h1>
+                                    <p>JPG, PNG or WEBP up to 5MB</p>
+                                </div>
+                                
+                                <img id="vehicle-image-preview"
+                                class="img-fluid"
+                                src="{{ vehicle.image_url or '' }}"
+                                alt="Vehicle Preview"
+                                {% if not vehicle.image_url %}hidden{% endif %}>
+
+
+                                <input class="form-control" type="file" id="vehicle_image" name="vehicle_image" accept=".jpg,.jpeg,.png,.webp">
+                            </div>
+
+                            <button class="btn btn-primary remove-image-btn"
+                                    id="remove-image-btn"
+                                    type="button">
+                                Remove Image
+                            </button>
+
+                            <input type="hidden" id="remove_vehicle_image" name="remove_vehicle_image" value="no">
+
+                        </div>
+                    </div>
+
+                    <!-- VEHICLE DETAILS -->
+                    <div class="col col-lg-8">
+                        <div id="vehicle-panel" class="vehicle-panel">
+
+                            <h1>Vehicle Details</h1>
+
+                            <!-- MAKE -->
+                            <div id="Vehicle-Make" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Vehicle Make
+                                    <input type="text" name="make" placeholder="Enter Make" value="{{ vehicle.make }}" required>
+                                </label>
+                            </div>
+
+                            <!-- MODEL -->
+                            <div id="Vehicle-Model" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Vehicle Model
+                                    <input type="text" name="model" placeholder="Enter Model" value="{{ vehicle.model }}" >
+                                </label>
+                            </div>
+
+                            <!-- YEAR -->
+                            <div id="Year" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Year
+                                    <input type="number" name="year" min="1886" max="2100" value="{{ vehicle.year }}" required>
+                                </label>
+                            </div>
+                            <!-- VERSION / TRIM -->
+                             <div id="Vehicle-Trim" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Version / Trim (Optional)
+                                    <input type="text" name="submodel" placeholder="Enter Version / Trim" value="{{ vehicle.submodel or '' }}">
+                                </label>
+                            </div>
+                            <!-- BODY STYLE -->
+                             <div id="Vehicle-Body" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Body Style (Optional)
+                                    <input type="text" name="body_style" placeholder="Enter Body Style" value="{{ vehicle.body_style or '' }}">
+                                </label>
+                            </div>
+                            <!-- ENGINE -->
+                             <div id="Vehicle-Engine" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Engine Capacity (cc) (Optional)
+                                    <input type="number" name="engine_cc" min="1" max="30000" placeholder="Enter Engine Capacity" value="{{ vehicle.engine_cc if vehicle.engine_cc is not none else '' }}">
+                                </label>
+                            </div>
+                            <!-- MODEL CODE -->
+                             <div id="Vehicle-Model-Code" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Model Code (Optional)
+                                    <input type="text" name="model_code" placeholder="Enter Model Code" value="{{ vehicle.model_code or '' }}">
+                                </label>
+                            </div>
+
+                            <!-- REGISTRATION -->
+                            <div id="Registration-Plate" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Registration Plate
+                                    <input type="text" name="registration_plate" placeholder="Enter Rego" value="{{ vehicle.registration_plate }}" required>
+                                </label>
+                            </div>
+
+                            <!-- ODOMETER -->
+                            <div id="Odometer-Reading" class="vehicle-form-row">
+                                <label class="form-label">
+                                    Odometer Reading (KMs)
+                                    <input type="number" name="odometer" value="{{ vehicle.odometer if vehicle.odometer is not none else '' }}" readonly>
+                                </label>
+                                <small>Use Update Odometer on the vehicle page to change this reading.</small>
+                            </div>
+
+                            <!-- FUEL TYPE -->
+                            <div id="Fuel-Type" class="vehicle-form-row">
+                                <label class="form-label" for="fuel_type">Fuel Type</label>
+                                <select class="form-select" id="fuel_type" name="fuel_type">
+                                    <option value="" {% if not vehicle.fuel_type %}selected{% endif %}>Not specified</option>
+                                    <option value="Petrol" {% if vehicle.fuel_type == "Petrol" %}selected{% endif %}>Petrol</option>
+                                    <option value="Diesel" {% if vehicle.fuel_type == "Diesel" %}selected{% endif %}>Diesel</option>
+                                    <option value="Hybrid" {% if vehicle.fuel_type == "Hybrid" %}selected{% endif %}>Hybrid</option>
+                                    <option value="Electric" {% if vehicle.fuel_type == "Electric" %}selected{% endif %}>Electric</option>
+                                </select>
+                            </div>
+
+                            <!-- TRANSMISSION -->
+                            <div id="Transmission" class="vehicle-form-row">
+                                <label class="form-label" for="transmission">Transmission</label>
+                                <select class="form-select" id="transmission" name="transmission">
+                                    <option value="" {% if not vehicle.transmission %}selected{% endif %}>Not specified</option>
+                                    <option value="Automatic" {% if vehicle.transmission == "Automatic" %}selected{% endif %}>Automatic</option>
+                                    <option value="Manual" {% if vehicle.transmission == "Manual" %}selected{% endif %}>Manual</option>
+                                </select>
+                            </div>
+
+                            <!-- ADDITIONAL DETAILS -->
+                            <div class="mt-3 vehicle-panel" id="Additional-Details">
+                                <h1>Additional Details</h1>
+
+                                <div>
+                                    <label class="form-label">
+                                        VIN Number (Optional)
+                                        <input type="text" name="vin" placeholder="Enter VIN Number" value="{{ vehicle.vin or '' }}">
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">
+                                        Notes (Optional)
+                                        <textarea name="notes" placeholder="Enter any additional notes...">{{ vehicle.notes or '' }}</textarea>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAVE VEHICLE -->
+                <div id="vehicle-actions" class="vehicle-actions">
+                    <button class="btn btn-primary save-vehicle-btn" type="submit">
+                        Save Changes
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- CANCEL -->
+            <div id="Cancel-Action" class="cancel-action">
+                <a class="cancel-action" href="/vehicle/{{ vehicle.vehicle_id }}">
+                    Cancel and return to Vehicle
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/edit-vehicle.js"></script>
+
+</body>
+</html>

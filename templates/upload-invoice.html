@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="upload-invoice-page" style="min-height: 100vh; margin: 0;">
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account-settings.html">Settings</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="btn btn-primary logout-btn" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="upload-invoice-section">
+        <div class="container upload-invoice-container">
+
+            <div class="upload-invoice-heading">
+                <h1 class="back-manage-lin">
+                    <a class="back-manage-link" href="/vehicle/{{ vehicle.vehicle_id }}">
+                        ← Back to Manage Vehicle
+                    </a>
+                </h1>
+
+                <h1>Add New Invoice</h1>
+                <!-- Display invoice upload errors -->
+                 {% if request.args.get("error") == "service-description" %}
+                 <p class="text-danger mt-3">Please enter a service description.</p>
+                 
+                 {% elif request.args.get("error") == "invoice-odometer" %}
+                 <p class="text-danger mt-3">Enter a valid invoice odometer reading.</p>
+
+                 {% elif request.args.get("error") == "service-odometer" %}
+                 <p class="text-danger mt-3">An odometer reading is required when resetting the general service reminder.</p>
+
+                 {% elif request.args.get("error") == "odometer-confirm" %}
+                <p class="text-danger mt-3">Please confirm the large odometer increase before saving.</p>   
+                 
+                 {% elif request.args.get("error") == "invoice-invalid" %}
+                 <p class="text-danger mt-3">Invalid or corrupted invoice image.</p>
+                 
+                 {% elif request.args.get("error") == "invoice-format" %}
+                 <p class="text-danger mt-3">Unsupported image format. Use JPG, PNG, WebP, HEIC or HEIF.</p>
+                 
+                 {% elif request.args.get("error") == "invoice-size" %}
+                 <p class="text-danger mt-3">Each invoice page must be 10MB or smaller.</p>
+                 
+                 {% elif request.args.get("error") == "image-upload-failed" %}
+                 <p class="text-danger mt-3">Unable to upload invoice images. Please try again.</p>
+                 
+                 {% elif request.args.get("error") == "invoice-save-failed" %}
+                 <p class="text-danger mt-3">Unable to save invoice. Please try again.</p>
+                 
+                 {% endif %}
+                <p>
+                    Upload an invoice or enter the details manually for
+                    {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="/upload-invoice/{{ vehicle.vehicle_id }}"
+                enctype="multipart/form-data"
+            >
+
+                <div class="invoice-upload-zone">
+                    <svg
+                        class="bi bi-cloud-arrow-up-fill"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1em"
+                        height="1em"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                    >
+                        <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"></path>
+                    </svg>
+
+                  <h1>Drag &amp; Drop or Click to Upload Image</h1>
+
+                  <p class="text-white">
+                    For accurate scanning, take a clear photo of your invoice with good lighting.
+                    Make sure the text is readable and the entire invoice is visible.
+                </p>
+
+                  <input
+                  type="file"
+                  name="invoice_file"
+                  id="invoice_file"
+                  accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif"
+                  multiple
+                  >
+                </div>
+
+                <div class="row g-3 invoice-review-row">
+
+                    <div class="col col-lg-5" id="invoice_preview_column" hidden>
+                        <div class="invoice-preview-panel">
+
+                            <h2 id="H2">Invoice Preview</h2>
+
+                            <div class="invoice-preview-document">
+
+                                <img id="invoice_preview" width="392" alt="Invoice Preview" data-bs-toggle="modal" data-bs-target="#invoiceZoomModal" style="cursor:zoom-in">
+                                <div id="invoice_navigation" class="invoice-preview-controls" hidden>
+                                    <button type="button" id="previous_invoice" class="btn btn-primary" disabled>
+                                        &larr;
+                                    </button>
+                                    <span id="invoice_counter">Page 1 of 1</span>
+                                    <button type="button" id="next_invoice" class="btn btn-primary" disabled>
+                                        &rarr;
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col col-lg-12" id="invoice_information_column">
+                        <div class="ocr-review-panel">
+
+                            <h2 id="H2-1">Invoice Information</h2>
+                            <!-- OCR warning message -->
+                             <div id="ocr_warning" class="alert alert-warning mt-3" role="alert" hidden></div>
+                            <p>
+                                Enter details manually or review the information extracted by OCR.
+                            </p>
+
+                            <div class="ocr-section">
+
+                                <h3>Company Information</h3>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Company Name
+
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            id="company_name"
+                                            name="company_name"
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Address
+
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            id="company_address"
+                                            name="company_address"
+
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Phone Number
+
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            id="company_phone"
+                                            name="company_phone"
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Email Address
+
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            id="company_email"
+                                            name="company_email"
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        GST / Tax Number
+
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            id="gst_number"
+                                            name="gst_number"
+                                        >
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <div class="ocr-section">
+
+                                <h3>Invoice Details</h3>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Invoice Number
+
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            id="invoice_number"
+                                            name="invoice_number"
+                                            placeholder="Example: INV-001"
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Invoice Date
+
+                                        <input
+                                            class="form-control"
+                                            type="date"
+                                            name="date"
+                                            required
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Cost
+
+                                        <input
+                                            class="form-control"
+                                            type="number"
+                                            name="cost"
+                                            step="0.01"
+                                            min="0"
+                                            placeholder="0.00"
+                                            required
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="ocr-field">
+                                    <label class="form-label">
+                                        Category
+                                    </label>
+
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="category"
+                                            value="Service"
+                                            id="category-service"
+                                        >
+
+                                        <label
+                                            class="form-check-label"
+                                            for="category-service"
+                                        >
+                                            Service
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="category"
+                                            value="Repair"
+                                            id="category-repair"
+                                        >
+
+                                        <label
+                                            class="form-check-label"
+                                            for="category-repair"
+                                        >
+                                            Repair
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="category"
+                                            value="Modification"
+                                            id="category-modification"
+                                        >
+
+                                        <label
+                                            class="form-check-label"
+                                            for="category-modification"
+                                        >
+                                            Modification
+                                        </label>
+
+                                    </div>
+                                </div>
+<div id="service_details_section" class="ocr-section" hidden>
+    
+    <h3>Service History Details</h3>
+    <div class="ocr-field">
+    <label class="form-label" for="service_description">
+        Service Description
+    </label>
+    <input class="form-control" type="text" id="service_description" name="service_description" placeholder="Ex: Engine oil and filter change" required disabled>
+    </div>
+    
+    <div class="form-check mt-3">
+    <input class="form-check-input" type="checkbox" id="counts_as_service" name="counts_as_service" value="on">
+    <label class="form-check-label" for="counts_as_service">
+        Counts towards general service reminder
+    </label>
+    <p class="small text-muted mt-1">
+        Select for an oil change or major/general service.
+        Tyres, brakes and WOF inspections do not reset the reminder.
+    </p>
+</div>
+
+</div>
+<div class="ocr-field"> 
+        <label class="form-label" for="invoice_odometer">
+            Invoice Odometer (km) 
+        </label>
+        <input class="form-control" type="number" id="invoice_odometer" name="invoice_odometer" min="0" max="2500000" step="1" placeholder="ex: 125000" data-current-km="{{ vehicle.odometer if vehicle.odometer is not none else '' }}">
+        <input type="hidden" id="confirm_large_odometer" name="confirm_large_odometer" value="off">
+    </div>
+                              
+<div class="invoice-content-section">
+
+    <h3>Invoice Content</h3>
+
+    <p>Add tables and notes manually, or review the scanned invoice content.</p>
+
+    <!-- Editable table for structured OCR results -->
+    <div id="invoice_table_editor" hidden>
+
+        <div class="invoice-table-scroll">
+
+            <div class="table-responsive">
+
+                <table class="table invoice-edit-table">
+
+                    <thead>
+                        <tr id="invoice_table_head"></tr>
+                    </thead>
+
+                    <tbody id="invoice_table_body"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary" id="add_invoice_row" type="button">
+            + Add Row
+        </button>
+
+    </div>
+
+    <!-- Dynamic OCR sections: upload-invoice.js will populate this area. -->
+    <!-- Hidden until the new section editor is enabled. -->
+    <div id="invoice_sections_editor" hidden>
+        <div id="invoice_sections_list"></div>
+
+        <button class="btn btn-primary mt-3" id="add_invoice_section" type="button">
+            + Add Section
+        </button>
+    </div>
+
+    <!-- Text editor for invoices without a detected table -->
+    <div id="invoice_text_fallback">
+
+        <textarea class="form-control ocr-content-textarea" id="ocr_text" name="ocr_text" placeholder="OCR text will appear here...">
+
+        </textarea>
+
+    </div>
+
+  
+    <!--Keep the old notes field hidden for now-->
+<input type="hidden" id="invoice_notes_editor" name="invoice_notes">
+
+<!--Save the table and OCR sections-->
+<input type="hidden" id="invoice_items" name="invoice_items">
+
+</div>
+
+
+                                <div class="ocr-actions">
+
+                                    <button class="btn btn-primary rescan-ocr-btn" type="button">
+                                        Rescan OCR
+                                    </button>
+
+                                    <button
+                                        class="btn btn-primary save-invoice-btn" type="submit">
+                                        Save Invoice
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!--Modal for viewing the uploaded invoice in a larger size-->
+            <div class="modal fade" id="invoiceZoomModal" tabindex="-1" aria-hidden="true">
+                
+                <!--Make the modal large and centre it on the screen-->
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    
+                    <div class="modal-content bg-dark">
+                        
+                        <!--Button to close the enlarged invoice-->
+                        <div class="modal-header border-0">
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        
+                        <!--Display the enlarged invoice image-->
+                        <div class="modal-body text-center">
+                            <img id="invoice_zoom_image" class="img-fluid" alt="Enlarged Invoice" style="max-height: 85vh; object-fit: contain;">
+                        </div>
+
+        </div>
+    </div>
+</div>
+        </div>
+    </section>
+
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+
+            <ul class="list-inline">
+
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">
+                        About
+                    </a>
+                </li>
+
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">
+                        Privacy
+                    </a>
+                </li>
+
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">
+                        Contact
+                    </a>
+                </li>
+
+            </ul>
+
+            <p class="text-body mb-0">
+                Copyright © 2026 CarMa
+            </p>
+
+        </div>
+    </footer>
+
+    <!-- OCR Loading Popup -->
+<div id="ocr_loading" hidden>
+    <div class="ocr-loading-box">
+        <div class="loader">
+            <div class="circle">
+                <div class="dot"></div>
+                <div class="outline"></div>
+            </div>
+            <div class="circle">
+                <div class="dot"></div>
+                <div class="outline"></div>
+            </div>
+            <div class="circle">
+                <div class="dot"></div>
+                <div class="outline"></div>
+            </div>
+            <div class="circle">
+                <div class="dot"></div>
+                <div class="outline"></div>
+            </div>
+        </div>
+
+        <h5>Scanning your invoice...</h5>
+        <p>Extracting invoice details</p>
+    </div>
+</div>
+
+
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/upload-invoice.js"></script>
+
+</body>
+</html>

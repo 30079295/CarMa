@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="add-vehicle-page" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark" style="background: rgb(6, 17, 14);">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item"></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account-settings.html">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary logout-btn" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- ADD VEHICLE -->
+    <section class="add-vehicle-section">
+        <div class="container position-relative h-100 add-vehicle-container">
+            <div class="add-vehicle-heading">
+                <h1>Add a Vehicle</h1>
+                <p>Enter your vehicle details to begin tracking invoices</p>
+                <!-- Display vehicle form errors -->
+                 {% if error %}
+                 <p class="text-danger mt-3">{{ error }}</p>
+                 {% endif %}
+                <!-- VEHICLE FORM -->
+                <form method="POST" action="/add-vehicle" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <!-- VEHICLE IMAGE -->
+                        <div class="col col-lg-4">
+                            <div class="vehicle-panel vehicle-image-panel">
+                                <h1>Add Vehicle Image</h1>
+                                <div id="vehicle-upload" class="vehicle-upload">
+                                    <div id="vehicle-upload-placeholder">
+                                        <svg class="bi bi-car-front-fill" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" style="font-size: 142px;">
+                                            <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17s3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"></path>
+                                        </svg>
+                                        <h1>
+                                            <br>
+                                            Drag & Drop or Click to Upload
+                                            <br>
+                                            <br>
+                                        </h1>
+                                        <p>JPG, PNG or WEBP up to 5MB</p>
+                                    </div>
+                                    <img id="vehicle-image-preview" class="img-fluid" alt="Vehicle Preview" style="display: none; max-height: 300px; width: 100%; object-fit: cover;">
+                                    <input class="form-control" type="file" id="vehicle_image" name="vehicle_image" accept=".jpg,.jpeg,.png,.webp">
+                                </div>
+                                <button class="btn btn-primary remove-image-btn" id="remove-image-btn" type="button">Remove Image</button>
+                            </div>
+                        </div>
+                        <!-- VEHICLE DETAILS -->
+                        <div class="col col-lg-8">
+                            <div id="vehicle-panel" class="vehicle-panel">
+                                <h1>Vehicle Details</h1>
+                                
+                                <!-- MAKE -->
+                                 <div id="Vehicle-Make" class="vehicle-form-row">
+                                    <label class="form-label" for="vehicle_make">Vehicle Make</label>
+                                    <input class="form-control" type="text" id="vehicle_make" name="make" list="make-options" placeholder="Search Make" autocomplete="off" required>
+                                    <datalist id="make-options"></datalist>
+                                </div>
+                                <!-- MODEL -->
+                                 <div id="Vehicle-Model" class="vehicle-form-row">
+                                    <label class="form-label" for="vehicle_model">Vehicle Model</label>
+                                    <input class="form-control" type="text" id="vehicle_model" name="model" list="model-options" placeholder="Select Make First" autocomplete="off" required>
+                                    <datalist id="model-options"></datalist>
+                                </div>
+                                <!-- YEAR -->
+                                 <div id="Year" class="vehicle-form-row">
+                                    <label class="form-label" for="vehicle_year">Year</label>
+                                    <select class="form-select" id="vehicle_year" name="year" required>
+                                        <option value="">Select Make and Model First</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- VERSION / TRIM -->
+                                 <div id="Vehicle-Trim" class="vehicle-form-row">
+                                    <label class="form-label" for="vehicle_submodel">Version / Trim (Optional)</label>
+                                    <select class="form-select" id="vehicle_submodel" name="submodel">
+                                        <option value="">Select Year First</option>
+                                    </select>
+                                </div>
+                                <!-- BODY STYLE -->
+                                 <div id="Vehicle-Body" class="vehicle-form-row">
+                                    <label class="form-label" for="vehicle_body_style">Body Style (Optional)</label>
+                                    <select class="form-select" id="vehicle_body_style" name="body_style">
+                                        <option value="">Select Year First</option>
+                                    </select>
+                                </div>
+                                <!-- ENGINE -->
+                                 <div id="Vehicle-Engine" class="vehicle-form-row">
+                                    <label class="form-label" for="vehicle_engine">Engine (Optional)</label>
+                                    <select class="form-select" id="vehicle_engine" name="engine_cc">
+                                        <option value="">Select Year First</option>
+                                    </select>
+                                    <input type="hidden" id="vehicle_model_code" name="model_code">
+                                </div>
+
+                                <!-- REGISTRATION -->
+                                <div id="Registration-Plate" class="vehicle-form-row">
+                                    <label class="form-label">
+                                        Registration Plate
+                                        <input type="text" name="registration_plate" placeholder="Enter Rego" required>
+                                    </label>
+                                </div>
+                                <!-- ODOMETER -->
+                                <div id="Odometer-Reading" class="vehicle-form-row">
+                                    <label class="form-label">
+                                        Odometer Reading (KMs)
+                                        <input type="number" name="odometer" placeholder="Enter Current Odometer" min="0" max="2500000" step="1">
+                                    </label>
+                                </div>
+                                <!-- FUEL TYPE -->
+                                <div id="Fuel-Type" class="vehicle-form-row">
+                                    <label class="form-label" for="fuel_type">Fuel Type</label>
+                                    <select class="form-select" id="fuel_type" name="fuel_type">
+                                        <option value="" selected>Select fuel type (Optional)</option>
+                                        <option value="Petrol">Petrol</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                        <option value="Electric">Electric</option>
+                                    </select>
+                                </div>
+                                <!-- TRANSMISSION -->
+                                <div id="Transmission" class="vehicle-form-row">
+                                    <label class="form-label" for="transmission">Transmission</label>
+                                    <select class="form-select" id="transmission" name="transmission">
+                                        <option value="" selected>Select transmission (Optional)</option>
+                                        <option value="Automatic">Automatic</option>
+                                        <option value="Manual">Manual</option>
+                                    </select>
+                                </div>
+                                <!-- ADDITIONAL DETAILS -->
+                                <div class="mt-3 vehicle-panel" id="Additional-Details">
+                                    <h1>Additional Details</h1>
+                                    <div>
+                                        <label class="form-label">
+                                            VIN Number (Optional)
+                                            <input type="text" name="vin" placeholder="Enter VIN Number">
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">
+                                            Notes (Optional)
+                                            <textarea name="notes" placeholder="Enter any additional notes..."></textarea>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- SAVE VEHICLE -->
+                    <div id="vehicle-actions" class="vehicle-actions">
+                        <button class="btn btn-primary save-vehicle-btn" type="submit">Save Vehicle</button>
+                    </div>
+                </form>
+                <!-- CANCEL -->
+                <div id="Cancel-Action" class="cancel-action">
+                    <a class="cancel-action" href="/dashboard.html">Cancel and return to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- FOOTER -->
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="/assets/js/add-vehicle.js"></script>
+</body>
+</html>

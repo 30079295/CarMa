@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Invoice System</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="register-page" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/index.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-2">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-2">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login.html">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register.html" style="border-color: var(--bs-light);">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section class="register-section">
+        <div class="container position-relative h-100 features-container">
+            <div>
+                <div class="container">
+                    <div class="row d-flex d-xl-flex justify-content-center justify-content-xl-center">
+                        <div class="col-sm-12 col-lg-10 col-xl-9 col-xxl-7" style="border-radius: 1px;">
+                            <div class="p-5 register-card">
+                                <div class="text-center">
+                                    <h4 class="register-title">Login to CarMa</h4>
+                                    <p class="register-subtitle">Access your vehicle history and invoices.</p>
+                                </div>
+                                <form class="user" method="POST" action="/login">
+                                    {% if error %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ error }}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if success %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ success }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="mb-3">
+                                        <label class="form-label register-label">Email Address</label>
+                                        <input class="form-control register-input" id="email" type="email" name="email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label register-label">Password</label>
+                                        <input class="form-control register-input" id="password" type="password" name="password" required>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <p id="emailErrorMsg" class="text-danger" style="display: none;"></p>
+                                        <p id="passwordErrorMsg" class="text-danger" style="display: none;"></p>
+                                    </div>
+                                    <button class="btn btn-primary d-block w-100 btn-user register-button" id="submitBtn" type="submit">Login</button>
+                                    <hr>
+                                </form>
+                                <div class="text-center">
+                                    <a class="small" href="/register.html">Don't have an account? Create One</a>
+                                </div>
+                                <div class="text-center">
+                                    <a class="small" href="/forgot-password.html">Forgot Password?</a>
+                                </div>
+                                <!--Resend Verification Email-->
+                                <form method ="POST" action = "/resend-verification" class = "mt-3">
+                                <div class ="mb-3">
+                                    <input class = "form-control register-input" type="email" name="email" placeholder="Enter your email address" required>
+                                </div>
+                                <button class ="btn btn-outline-success w-100" type="submit"> Resend Verification Email</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

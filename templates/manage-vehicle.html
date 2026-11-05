@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CarMa Project</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="manage-vehicle-page" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-md py-3" data-bs-theme="dark">
+        <div class="container">
+            <div class="container main-nav">
+                <a href="/dashboard.html">
+                    <img class="nav-logo" src="/assets/img/UpdatedLogo.webp" alt="CarMa Logo">
+                </a>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+                    <span class="visually-hidden">Toggle navigation</span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse nav-login" id="navcol-1">
+                <ul class="navbar-nav ms-auto nav-login">
+                    <li class="nav-item"></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account-settings.html">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary logout-btn" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- MANAGE VEHICLE -->  
+<section class="manage-vehicle-section">
+    <div class="container position-relative h-100 manage-vehicle-container" id="manage-vehicle-container">
+        <!-- Return to Dashboard -->
+        <a href="/dashboard.html" class="btn back-dashboard-btn">
+            &#8592; Back to Dashboard
+        </a>
+        <!-- VEHICLE SUMMARY -->
+        <div id="vehicle-summary-panel" class="vehicle-summary-panel">
+
+                <div class="row">
+                    <!-- VEHICLE IMAGE -->
+                    <div class="col col-lg-2">
+                        {% if vehicle.image_url %}
+                            <img class="img-fluid" src="{{ vehicle.image_url }}" alt="{{ vehicle.make }} {{ vehicle.model }}">
+                        {% else %}
+                        <div class="vehicle-image-placeholder">
+                            <i class="bi bi-car-front-fill" style="font-size: 50px; color: #4da3ff;"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- VEHICLE DETAILS -->
+                     <div class="col col-lg-6">
+                        <h1>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h1>
+
+                        {% if vehicle.submodel %}
+                        <p>{{ vehicle.submodel }}</p>
+                        {% endif %}
+                        
+                        <div class="row" id="vehicle-info-row">
+                            <div class="col col-md-4">
+                                <p>Odometer</p>
+                                <p>
+                                    {% if vehicle.odometer is not none %}
+                                        {{ "{:,}".format(vehicle.odometer) }} km
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </p>
+                            </div>
+                            
+                            <div class="col col-md-4">
+                                <p>Fuel Type</p>
+                                <p>{{ vehicle.fuel_type or "Not specified" }}</p>
+                            </div>
+                            
+                            <div class="col col-md-4">
+                                <p>Transmission</p>
+                                <p>{{ vehicle.transmission or "Not specified" }}</p>
+                            </div>
+                            
+                            {% if vehicle.engine_cc %}
+                            <div class="col col-md-4">
+                                <p>Engine</p>
+                                <p>{{ vehicle.engine_cc }}cc ({{ "%.1f"|format(vehicle.engine_cc / 1000) }}L)</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if vehicle.body_style %}
+                            <div class="col col-md-4">
+                                <p>Body Style</p>
+                                <p>{{ vehicle.body_style }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if vehicle.model_code %}
+                            <div class="col col-md-4">
+                                <p>Model Code</p>
+                                <p>{{ vehicle.model_code }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- VEHICLE ACTIONS -->
+                    <div class="col col-lg-4">
+                        <div class="vehicle-summary-actions">
+                            <a class="btn btn-primary" href="/vehicle/{{ vehicle.vehicle_id }}/edit" style="margin-bottom: 22px;"> Edit Vehicle </a>
+                            <a class="btn btn-primary" href="/upload-invoice/{{ vehicle.vehicle_id }}" style="margin-bottom: 22px;">Add New Invoice</a>
+                            <button class="btn btn-primary" type="button" style="margin-bottom: 22px;" data-bs-toggle="modal" data-bs-target="#updateOdometerModal">Update Odometer</button>
+                            <!-- Opens the Service History page for the selected vehicle -->
+                        <a class="btn btn-primary" href="/service-reminder-page.html?vehicle_id={{ vehicle.vehicle_id }}" style="margin-bottom: 22px;">  View Service History </a>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#removeVehicleModal">Remove Vehicle</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- INVOICE SEARCH / FILTER PANEL -->
+            <div class="invoice-search-panel">
+                <h4 class="invoice-search-title">Search &amp; Filter Invoices</h4>
+
+                <div class="row">
+                    <div class="col col-lg-6">
+                        <input
+                            type="text"
+                            id="invoice-search"
+                            class="form-control"
+                            placeholder="Search invoices, company, category..."
+                        >
+                    </div>
+
+                    <div class="col col-lg-2">
+                        <select id="invoice-sort" class="form-select">
+                            <option value="recent" selected>Recently Added</option>
+                            <option value="newest">Newest Invoice Date</option>
+                            <option value="oldest">Oldest Invoice Date</option>
+                            <option value="highest">Highest Cost</option>
+                            <option value="lowest">Lowest Cost</option>
+                        </select>
+                    </div>
+
+                    <div class="col col-lg-2">
+                        <button
+                            class="btn btn-primary"
+                            id="invoice-search-btn"
+                            type="button"
+                        >
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVOICE TABS -->
+            <div>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-1">Service History</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-2">Repair History</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-3">Modifications</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" role="tab" data-bs-toggle="tab" href="#tab-4">All Invoices</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- SERVICE HISTORY -->
+                    <div class="tab-pane" role="tabpanel" id="tab-1">
+                        {% if service_invoices %}
+                            {% for invoice in service_invoices %}
+                                <div class="invoice-card"
+                                 data-invoice-number="{{ invoice.invoice_number or invoice.invoice_id }}"
+                                  data-company="{{ invoice.company_name or '' }}"
+                                  data-category="{{ invoice.category | join(' / ') }}"
+                                  data-date="{{ invoice.date }}"
+                                  data-added="{{ invoice.created_at or '' }}"
+                                  data-cost="{{ invoice.cost }}">
+                                    <div class="row align-items-center">
+                                        <div class="col col-lg-1">
+                                            {% if invoice.invoice_image_url %}
+                                            <img class="img-fluid" src="/invoice/{{ invoice.invoice_id }}/thumbnail" loading="lazy" decoding="async" width="80" alt="Invoice">
+                                            {% else %}
+                                            <div class="d-flex align-items-center justify-content-center rounded" style="width: 50px; height: 55px; background: #172a35; color: #0d6efd;">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col col-lg-3">
+                                            <h1>Invoice #{{ invoice.invoice_number or invoice.invoice_id }}</h1>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.date }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.category | join(' / ') }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>${{ "%.2f"|format(invoice.cost) }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <a class="btn btn-primary" role="button" href="/invoice/{{ invoice.invoice_id }}">View Invoice</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="invoice-card">
+                                <p>No service invoices have been added yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- REPAIR HISTORY -->
+                    <div class="tab-pane" role="tabpanel" id="tab-2">
+                        {% if repair_invoices %}
+                            {% for invoice in repair_invoices %}
+                                <div class="invoice-card"
+                                data-invoice-number="{{ invoice.invoice_number or invoice.invoice_id }}"
+                                data-company="{{ invoice.company_name or '' }}"
+                                data-category="{{ invoice.category | join(' / ') }}"
+                                data-date="{{ invoice.date }}"
+                                data-added="{{ invoice.created_at or '' }}"
+                                data-cost="{{ invoice.cost }}">
+                                    <div class="row align-items-center">
+                                        <div class="col col-lg-1">
+                                            {% if invoice.invoice_image_url %}
+                                            <img class="img-fluid" src="/invoice/{{ invoice.invoice_id }}/thumbnail" loading="lazy" decoding="async" width="80" alt="Invoice">
+                                            {% else %}
+                                            <div class="d-flex align-items-center justify-content-center rounded" style="width: 50px; height: 55px; background: #172a35; color: #0d6efd;">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col col-lg-3">
+                                            <h1>Invoice #{{ invoice.invoice_number or invoice.invoice_id }}</h1>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.date }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.category | join(' / ') }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>${{ "%.2f"|format(invoice.cost) }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <a class="btn btn-primary" role="button" href="/invoice/{{ invoice.invoice_id }}">View Invoice</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="invoice-card">
+                                <p>No repair invoices have been added yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- MODIFICATIONS -->
+                    <div class="tab-pane" role="tabpanel" id="tab-3">
+                        {% if modification_invoices %}
+                            {% for invoice in modification_invoices %}
+                                <div class="invoice-card"
+                                data-invoice-number="{{ invoice.invoice_number or invoice.invoice_id }}"
+                                data-company="{{ invoice.company_name or '' }}"
+                                data-category="{{ invoice.category | join(' / ') }}"
+                                data-date="{{ invoice.date }}"
+                                data-added="{{ invoice.created_at or '' }}"
+                                data-cost="{{ invoice.cost }}">
+                                    <div class="row align-items-center">
+                                        <div class="col col-lg-1">
+                                            {% if invoice.invoice_image_url %}
+                                            <img class="img-fluid" src="/invoice/{{ invoice.invoice_id }}/thumbnail" loading="lazy" decoding="async" width="80" alt="Invoice">
+                                            {% else %}
+                                            <div class="d-flex align-items-center justify-content-center rounded" style="width: 50px; height: 55px; background: #172a35; color: #0d6efd;">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col col-lg-3">
+                                            <h1>Invoice #{{ invoice.invoice_number or invoice.invoice_id }}</h1>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.date }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.category | join(' / ') }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>${{ "%.2f"|format(invoice.cost) }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <a class="btn btn-primary" role="button" href="/invoice/{{ invoice.invoice_id }}">View Invoice</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="invoice-card">
+                                <p>No modification invoices have been added yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <!-- ALL INVOICES -->
+                    <div class="tab-pane active" role="tabpanel" id="tab-4">
+                        {% if invoices %}
+                            {% for invoice in invoices %}
+                                <div 
+                                class="invoice-card"
+                                data-invoice-number="{{ invoice.invoice_number or invoice.invoice_id}}"
+                                data-company="{{ invoice.company_name or ''}}" 
+                                data-category="{{ invoice.category | join(' / ')}}" 
+                                data-date="{{ invoice.date }}"
+                                data-added="{{ invoice.created_at or '' }}"
+                                data-cost="{{ invoice.cost }}"
+                                >
+                                    <div class="row align-items-center">
+                                        <div class="col col-lg-1">
+                                            {% if invoice.invoice_image_url %}
+                                                <img class="img-fluid" src="/invoice/{{ invoice.invoice_id }}/thumbnail" loading="lazy" decoding="async" width="80" alt="Invoice">
+                                            {% else %}
+                                            <div class="d-flex align-items-center justify-content-center rounded" style="width: 50px; height: 55px; background: #172a35; color: #0d6efd;">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col col-lg-3">
+                                            <h1>Invoice #{{ invoice.invoice_number or invoice.invoice_id }}</h1>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.date }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>{{ invoice.category | join(' / ') }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <p>${{ "%.2f"|format(invoice.cost) }}</p>
+                                        </div>
+                                        <div class="col col-lg-2">
+                                            <a class="btn btn-primary" role="button" href="/invoice/{{ invoice.invoice_id }}">View Invoice</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="invoice-card">
+                                <p>No invoices have been added for this vehicle yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- FOOTER -->
+    <footer class="text-center" data-bs-theme="dark">
+        <div class="container py-4 py-lg-5">
+            <ul class="list-inline">
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">About</a>
+                </li>
+                <li class="list-inline-item me-4">
+                    <a class="link-body-emphasis" href="#">Privacy</a>
+                </li>
+                <li class="list-inline-item">
+                    <a class="link-body-emphasis" href="#">Contact</a>
+                </li>
+            </ul>
+            <p class="text-body mb-0">Copyright © 2026 CarMa</p>
+        </div>
+    </footer>
+    <!-- UPDATE ODOMETER POPUP -->
+    <div class="modal fade" id="updateOdometerModal" tabindex="-1" aria-labelledby="updateOdometerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgb(7, 16, 22); color: white;">
+                <form id="odometerForm" action="/vehicle/{{ vehicle.vehicle_id }}/odometer" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateOdometerModalLabel">Update odometer</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Current reading:
+                            {% if vehicle.odometer is not none %}
+                                {{ "{:,}".format(vehicle.odometer) }} km
+                            {% else %}
+                                 Not recorded
+                            {% endif %}
+                        </p>
+                        <label for="newOdometer" class="form-label">New odometer reading (km)</label>
+                        <input class="form-control" type="number" id="newOdometer" name="odometer" min="0" max="2500000" step="1" value="{{ vehicle.odometer if vehicle.odometer is not none else '' }}" data-current-km="{{ vehicle.odometer if vehicle.odometer is not none else '' }}" required>
+                        {% if request.args.get("error") == "odometer-invalid" %}
+                        <p class="text-danger mt-3">Enter a valid odometer reading.</p>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save odometer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- REMOVE VEHICLE CONFIRMATION POPUP -->
+    <div class="modal fade" id="removeVehicleModal" tabindex="-1" aria-labelledby="removeVehicleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgb(7, 16, 22); color: white;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeVehicleModalLabel">Remove vehicle?</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to remove your {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}? All its invoices will also be deleted. This cannot be undone.</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="/vehicle/{{ vehicle.vehicle_id }}/delete" method="POST" class="m-0">
+                        <button type="submit" class="btn btn-danger">Yes, remove vehicle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/manage-vehicle.js"></script>
+</body>
+</html>
