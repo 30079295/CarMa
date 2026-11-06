@@ -5,6 +5,7 @@ import json
 import resend
 import secrets
 import hashlib
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -18,11 +19,43 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from pillow_heif import register_heif_opener
 from io import BytesIO
 
+
 #Allow Pillow to open iPhone HEIC and HEIF images
 register_heif_opener()
 
 #Read the settings from env file.
 load_dotenv()
+
+AES_KEY = bytes.fromhex(os.environ["AES_ENCRYPTION_KEY"])
+aes = AESGCM(AES_KEY)
+
+#Symmetric encryption
+def aes_encrypt(value):
+    if not value:
+        return value
+
+    nonce = secrets.token_bytes(12)
+
+    ciphertext = nonce + aes.encrypt(nonce, value.encode(), None)
+
+    return "enc:v1:" + ciphertext.hex()
+
+#Symmetric decryption
+def aes_decrypt(value):
+    if not value:
+        return value
+
+    if not value.startswith("enc:v1:"):
+        return value
+
+    ciphertext = bytes.fromhex(value[7:])
+
+    plaintext = aes.decrypt(ciphertext[:12], ciphertext[12:], None)
+
+    return plaintext.decode()
+
+
+
 #Email settings
 resend.api_key = os.environ.get("RESEND_API_KEY")
 EMAIL_FROM = os.environ.get("EMAIL_FROM")
@@ -347,6 +380,11 @@ def dashboard():
 
     vehicles = vehicles_response.data
 
+    #Decrypt vehicle details for dashboard
+    for vehicle in vehicles:
+        vehicle["registration_plate"] = aes_decrypt(vehicle.get("registration_plate"))
+        vehicle["vin"] = aes_decrypt(vehicle.get("vin"))
+
     #Count how many vehicles the user has
     total_vehicles = len(vehicles)
     
@@ -592,11 +630,11 @@ def add_vehicle():
             "body_style": request.form.get("body_style") or None,
             "engine_cc": engine_cc,
             "model_code": request.form.get("model_code") or None,
-            "registration_plate": request.form["registration_plate"],
+            "registration_plate": aes_encrypt(request.form["registration_plate"]),
             "odometer": odometer,
             "fuel_type": request.form.get("fuel_type") or None,
             "transmission": transmission,
-            "vin": request.form.get("vin"),
+            "vin": aes_encrypt(request.form.get("vin")),
             "notes": request.form.get("notes"),
             "image_url": image_url
             }).execute()
@@ -626,6 +664,9 @@ def edit_vehicle(vehicle_id):
         return redirect("/dashboard.html?error=vehicle-not-found")
 
     vehicle = vehicle_response.data[0]
+    # Decrypt vehicle information for editing
+    vehicle["registration_plate"] = aes_decrypt(vehicle.get("registration_plate"))
+    vehicle["vin"] = aes_decrypt(vehicle.get("vin"))
 
     if request.method == "POST":
 
@@ -743,10 +784,10 @@ def edit_vehicle(vehicle_id):
             "body_style": request.form.get("body_style", "").strip() or None,
             "engine_cc": engine_cc,
             "model_code": request.form.get("model_code", "").strip() or None,
-            "registration_plate": registration,
+            "registration_plate": aes_encrypt(registration),
             "fuel_type": fuel_type or None,
             "transmission": transmission or None,
-            "vin": request.form.get("vin", "").strip(),
+            "vin": aes_encrypt(request.form.get("vin", "").strip()),
             "notes": request.form.get("notes", "").strip(),
             "image_url": image_url
         }
@@ -814,6 +855,10 @@ def manage_vehicle(vehicle_id):
         return redirect("/dashboard.html?error=vehicle-not-found")
 
     vehicle = vehicle_response.data[0]
+
+    #Decrypt vehicle details before displaying
+    vehicle["registration_plate"] = aes_decrypt(vehicle.get("registration_plate"))
+    vehicle["vin"] = aes_decrypt(vehicle.get("vin"))
 
     #Get the invoices linked to this vehicle.
     invoices_response = (
@@ -2103,7 +2148,11 @@ def send_service_reminder(vehicle_id,user_id):
 
     #Get the vehicle information
     vehicle = response.data[0]
+    #Decrypt registration for service reminder email
+    vehicle["registration_plate"] = aes_decrypt(vehicle.get("registration_plate"))
 
+    print("Service Reminder Plate:", vehicle["registration_plate"])
+    
     #Get the saved service readings
     last_service = vehicle.get("last_service_km")
     interval = vehicle.get("service_interval_km")

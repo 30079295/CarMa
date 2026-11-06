@@ -107,8 +107,21 @@
                                 <p>{{ vehicle.model_code }}</p>
                             </div>
                             {% endif %}
-                        </div>
+                        
+                    <!-- Registration -->
+                    <div class="col col-md-4">
+                        <p>Registration</p>
+                        <p>{{ vehicle.registration_plate or "Not provided" }}</p>
                     </div>
+
+                    <!-- VIN -->
+                    <div class="col col-md-4">
+                        <p>VIN</p>
+                        <p>{{ vehicle.vin or "Not provided" }}</p>
+                    </div>
+
+                    </div> 
+                    </div> 
 
                     <!-- VEHICLE ACTIONS -->
                     <div class="col col-lg-4">
