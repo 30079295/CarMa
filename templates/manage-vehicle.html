@@ -112,17 +112,22 @@
                     <div class="col col-md-4">
                         <p>Registration</p>
                         <p>{{ vehicle.registration_plate or "Not provided" }}</p>
-                    </div>
-
+                    </div>  
                     <!-- VIN -->
                     <div class="col col-md-4">
                         <p>VIN</p>
                         <p>{{ vehicle.vin or "Not provided" }}</p>
                     </div>
 
-                    </div> 
-                    </div> 
-
+                    </div>
+                    <!-- VEHICLE NOTES -->
+                    {% if vehicle.notes %}
+                    <div class="vehicle-notes mt-3">
+                        <h6 class="fw-bold mb-2">Vehicle Notes</h6>
+                        <p class="mb-0">{{ vehicle.notes }}</p>
+                    </div>
+                    {% endif %}
+                    </div>
                     <!-- VEHICLE ACTIONS -->
                     <div class="col col-lg-4">
                         <div class="vehicle-summary-actions">
