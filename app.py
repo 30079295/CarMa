@@ -1536,10 +1536,19 @@ def invoice_viewer(invoice_id):
 
     vehicle = vehicle_response.data[0]
 
+    #Decrypt vehicle details before displaying them
+    vehicle["registration_plate"] = aes_decrypt(
+        vehicle.get("registration_plate")
+    )
+
+    vehicle["vin"] = aes_decrypt(
+        vehicle.get("vin")
+    )
+
     return render_template(
-    "invoice-viewer.html",
-    invoice=invoice,
-    vehicle=vehicle
+        "invoice-viewer.html",
+        invoice=invoice,
+        vehicle=vehicle
     )
 
 @app.route("/invoice/<int:invoice_id>/image")
@@ -2150,8 +2159,6 @@ def send_service_reminder(vehicle_id,user_id):
     vehicle = response.data[0]
     #Decrypt registration for service reminder email
     vehicle["registration_plate"] = aes_decrypt(vehicle.get("registration_plate"))
-
-    print("Service Reminder Plate:", vehicle["registration_plate"])
     
     #Get the saved service readings
     last_service = vehicle.get("last_service_km")
