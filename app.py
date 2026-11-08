@@ -1217,11 +1217,11 @@ def upload_invoice(vehicle_id):
         if counts_as_service and invoice_odometer is None:
             return redirect(f"/upload-invoice/{vehicle_id}?error=service-odometer")
 
-        #Confirm large mileage increases before saving
+        #Confirm any increase in the vehicle odometer before saving
         if invoice_odometer is not None:
             current_km = vehicle["odometer"]
 
-            if current_km is not None and invoice_odometer > current_km + 20000:
+            if current_km is not None and invoice_odometer > current_km:
                 if request.form.get("confirm_large_odometer") != "on":
                     return redirect(
                         f"/upload-invoice/{vehicle_id}?error=odometer-confirm"
@@ -1794,11 +1794,11 @@ def edit_invoice(invoice_id):
                 error="An odometer reading is required when resetting the general service reminder."
             ), 400
 
-        #Check large odometer increases when editing
+        #Confirm any odometer increase when editing an invoice
         if invoice_odometer is not None:
-            if vehicle["odometer"] is not None and invoice_odometer > vehicle["odometer"] + 20000:
+            if vehicle["odometer"] is not None and invoice_odometer > vehicle["odometer"]:
                 if request.form.get("confirm_large_odometer") != "on":
-                    return "Please confirm the large odometer increase.", 400
+                    return "Please confirm the odometer increase.", 400
 
 
         #Get the edited invoice table from the form
