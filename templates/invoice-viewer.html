@@ -48,11 +48,13 @@
                         <a class="btn btn-primary edit-invoice-btn" href="/invoice/{{ invoice.invoice_id }}/edit">
                             Edit Invoice
                         </a>
-                        <form method="POST" action="/invoice/{{ invoice.invoice_id }}/delete">
+                        <form method="POST"
+                              action="/invoice/{{ invoice.invoice_id }}/delete"
+                              onsubmit="return confirm('Are you sure you want to delete this invoice? This cannot be undone and may affect your vehicle service reminders.');">
                             <button class="btn btn-primary delete-invoice-btn" type="submit">
                                 Delete Invoice
                             </button>
-                        </form>
+                            </form>
                     </div>
                 </div>
             </div>
