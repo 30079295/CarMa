@@ -42,7 +42,7 @@ const serviceDescriptionInput = document.getElementById("service_description");
 const invoiceOdometerInput = document.getElementById("invoice_odometer");
 const confirmLargeOdometer = document.getElementById("confirm_large_odometer");
 
-//Confirm large odometer increases before saving
+//Confirm any odometer increase before saving
 invoiceForm.addEventListener("submit", function(event) {
     const currentKm = Number(invoiceOdometerInput.dataset.currentKm);
     const invoiceKm = Number(invoiceOdometerInput.value);
@@ -55,7 +55,7 @@ invoiceForm.addEventListener("submit", function(event) {
 
     if (invoiceOdometerInput.dataset.currentKm !== "" &&
         Number.isInteger(invoiceKm) &&
-        invoiceKm - currentKm > 20000) {
+        invoiceKm > currentKm) {
 
         const confirmed = confirm(
             "This invoice is " +
