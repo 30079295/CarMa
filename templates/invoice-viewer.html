@@ -7,6 +7,7 @@
     <title>View Invoice - CarMa</title>
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 </head>
 
 <body class="invoice-viewer-page" data-invoice-id="{{ invoice.invoice_id }}" data-total-pages="{{ (invoice.invoice_image_urls or []) | length or (1 if invoice.invoice_image_url else 0) }}" style="background: rgb(5, 18, 15); min-height: 100vh; margin: 0;">
